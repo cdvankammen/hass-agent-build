@@ -39,7 +39,6 @@ dotnet publish HASS.Agent.Avalonia/HASS.Agent.Avalonia.csproj \
     -r linux-x64 \
     --self-contained true \
     -p:PublishSingleFile=true \
-    -p:PublishTrimmed=true \
     -o "$BUILD_DIR/publish/gui"
 
 # Create package directory structure

@@ -15,7 +15,11 @@ public class NotificationService
     private readonly Queue<NotificationRequest> _pendingNotifications = new();
     private bool _isProcessing;
     
+    // Event raised when a notification action button is clicked.
+    // Platform implementations that support action callbacks should raise this.
+#pragma warning disable CS0067  // event declared but not yet raised — reserved for future platform callbacks
     public event EventHandler<NotificationActionEventArgs>? ActionClicked;
+#pragma warning restore CS0067
     
     /// <summary>
     /// Shows a notification using the platform's native notification system
