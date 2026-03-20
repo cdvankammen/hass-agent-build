@@ -1,0 +1,161 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="HASS.Agent.Avalonia.Views.SettingsView"
+             x:CompileBindings="False">
+    
+    <ScrollViewer>
+        <StackPanel Margin="20" Spacing="20">
+            <TextBlock Text="Settings" FontSize="24" FontWeight="Bold"/>
+            
+            <!-- Home Assistant Section -->
+            <Border Classes="card" Padding="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Home Assistant Connection" FontWeight="SemiBold" FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Server URL:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                 Watermark="http://homeassistant.local:8123"
+                                 Text="{Binding HomeAssistantUrl}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Access Token:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                 PasswordChar="●"
+                                 Watermark="Long-lived access token"
+                                 Text="{Binding HomeAssistantToken}"/>
+                        
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                            <Button Content="Test Connection" Command="{Binding TestHaConnectionCommand}"/>
+                            <TextBlock Text="{Binding HaConnectionStatus}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- MQTT Section -->
+            <Border Classes="card" Padding="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="MQTT Connection" FontWeight="SemiBold" FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Broker Address:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                 Watermark="homeassistant.local"
+                                 Text="{Binding MqttServer}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Port:" VerticalAlignment="Center"/>
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" 
+                                       Value="{Binding MqttPort}"
+                                       Minimum="1" Maximum="65535"/>
+                        
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Username:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" 
+                                 Watermark="MQTT username"
+                                 Text="{Binding MqttUsername}"/>
+                        
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Password:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" 
+                                 PasswordChar="●"
+                                 Watermark="MQTT password"
+                                 Text="{Binding MqttPassword}"/>
+                        
+                        <CheckBox Grid.Row="4" Grid.Column="1" 
+                                  Content="Use TLS/SSL"
+                                  IsChecked="{Binding MqttUseTls}"/>
+                        
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="Client ID:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" 
+                                 Watermark="Auto-generated if empty"
+                                 Text="{Binding MqttClientId}"/>
+                        
+                        <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                            <Button Content="Test Connection" Command="{Binding TestMqttConnectionCommand}"/>
+                            <TextBlock Text="{Binding MqttConnectionStatus}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- Device Section -->
+            <Border Classes="card" Padding="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Device Information" FontWeight="SemiBold" FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto,Auto">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Device Name:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" 
+                                 Watermark="My Computer"
+                                 Text="{Binding DeviceName}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Device ID:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" 
+                                 IsReadOnly="True"
+                                 Text="{Binding DeviceId}"/>
+                        
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Discovery Prefix:" VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" 
+                                 Watermark="homeassistant"
+                                 Text="{Binding DiscoveryPrefix}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- API Section -->
+            <Border Classes="card" Padding="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Local API" FontWeight="SemiBold" FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="150,*" RowDefinitions="Auto,Auto">
+                        <CheckBox Grid.Row="0" Grid.ColumnSpan="2"
+                                  Content="Enable Local API"
+                                  IsChecked="{Binding ApiEnabled}"/>
+                        
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="API Port:" VerticalAlignment="Center"/>
+                        <NumericUpDown Grid.Row="1" Grid.Column="1" 
+                                       Value="{Binding ApiPort}"
+                                       Minimum="1" Maximum="65535"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+            
+            <!-- General Section -->
+            <Border Classes="card" Padding="15">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="General" FontWeight="SemiBold" FontSize="16"/>
+                    
+                    <CheckBox Content="Start minimized to tray" IsChecked="{Binding StartMinimized}"/>
+                    <CheckBox Content="Minimize to tray on close" IsChecked="{Binding MinimizeToTray}"/>
+                    <CheckBox Content="Start with system" IsChecked="{Binding StartWithSystem}"/>
+                    <CheckBox Content="Check for updates automatically" IsChecked="{Binding AutoCheckUpdates}"/>
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="Log Level:" VerticalAlignment="Center"/>
+                        <ComboBox SelectedItem="{Binding LogLevel}" Width="150">
+                            <ComboBoxItem>Verbose</ComboBoxItem>
+                            <ComboBoxItem>Debug</ComboBoxItem>
+                            <ComboBoxItem>Information</ComboBoxItem>
+                            <ComboBoxItem>Warning</ComboBoxItem>
+                            <ComboBoxItem>Error</ComboBoxItem>
+                        </ComboBox>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            
+            <!-- Save Button -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button Content="Reset to Defaults" Command="{Binding ResetSettingsCommand}"/>
+                <Button Content="Save Settings" Classes="accent" Command="{Binding SaveSettingsCommand}"/>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+    
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

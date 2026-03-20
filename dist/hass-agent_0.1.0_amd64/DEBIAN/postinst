@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PKG_ROOT="/opt/hass-agent"
+
+# create system user if not exists
+if ! id -u hassagent >/dev/null 2>&1; then
+  useradd --system --no-create-home --shell /usr/sbin/nologin hassagent || true
+fi
+
+# ensure directory ownership
+if [ -d "$PKG_ROOT" ]; then
+  chown -R hassagent:hassagent "$PKG_ROOT" || true
+fi
+
+# enable and start systemd service
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl daemon-reload || true
+  systemctl enable hass-agent.service || true
+  systemctl restart hass-agent.service || true
+fi
+
+exit 0

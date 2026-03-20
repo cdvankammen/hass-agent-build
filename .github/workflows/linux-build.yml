@@ -1,0 +1,151 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Restore
+      run: dotnet restore src/HASS.Agent.Linux.sln
+
+    - name: Format check
+      run: |
+        dotnet tool restore || true
+        export PATH="$PATH:$HOME/.dotnet/tools"
+        if ! command -v dotnet-format >/dev/null 2>&1; then
+          dotnet tool install -g dotnet-format || true
+          export PATH="$PATH:$HOME/.dotnet/tools"
+        fi
+        dotnet format src/HASS.Agent.Linux.sln --verify-no-changes || true
+
+    - name: Build
+      run: dotnet build src/HASS.Agent.Linux.sln -c Release --no-restore
+
+    - name: Run tests
+      run: dotnet test src/HASS.Agent.Linux.sln -c Release --no-build --verbosity minimal
+
+    - name: Package Deb
+      run: |
+        chmod +x deploy/build_deb.sh
+        ./deploy/build_deb.sh
+
+    - name: Compute checksums
+      run: |
+        cd dist
+        sha256sum * > checksums.sha256
+
+    - name: Optional GPG sign
+      env:
+        GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      run: |
+        if [ -n "$GPG_PRIVATE_KEY" ]; then
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          for f in *; do
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -ab "$f"
+          done
+        else
+          echo "GPG_PRIVATE_KEY not provided; skipping signing"
+        fi
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: hass-agent-linux
+        path: dist/
+
+  verify-install:
+    name: Verify package install
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hass-agent-linux
+          path: ./artifact
+
+      - name: List artifact contents
+        run: |
+          ls -la artifact || true
+
+      - name: Find deb and extract
+        run: |
+          cd artifact
+          DEB=$(ls *.deb | head -n1 || true)
+          if [ -z "$DEB" ]; then
+            echo "No deb found in artifact"; exit 1
+          fi
+          echo "Found $DEB"
+          dpkg-deb -I "$DEB" || true
+          dpkg-deb -c "$DEB" | sed -n '1,200p' || true
+
+      - name: Install package
+        run: |
+          cd artifact
+          sudo dpkg -i *.deb || sudo apt-get install -f -y || true
+          sudo systemctl daemon-reload || true
+          sudo systemctl enable --now hass-agent || true
+          sudo systemctl status hass-agent --no-pager || true
+          sudo journalctl -u hass-agent -b --no-pager | sed -n '1,200p' || true
+
+      - name: Verify binary and files
+        run: |
+          if [ -f /opt/hass-agent/HASS.Agent.Headless ]; then ls -l /opt/hass-agent || true; fi
+          file /opt/hass-agent/HASS.Agent.Headless || true
+
+      - name: Smoke test HTTP endpoint
+        run: |
+          # wait for port to be open
+          for i in {1..30}; do
+            if ss -ltnp 2>/dev/null | grep -q ':11111'; then break; fi
+            sleep 1
+          done
+          curl -sS --fail http://127.0.0.1:11111/ || (sudo journalctl -u hass-agent -b --no-pager | sed -n '1,200p' && exit 1)
+
+      - name: Optional MQTT smoke test
+        run: |
+          # try to install mosquitto clients (may not be available on all runners)
+          sudo apt-get update -y || true
+          sudo apt-get install -y mosquitto-clients || true
+          # publish a test message
+          mosquitto_pub -h localhost -t hass.agent.test -m "hello" || true
+          # inspect logs for mention of mqtt or 'hello' (best-effort)
+          sudo journalctl -u hass-agent -b --no-pager | sed -n '1,200p' | grep -i "hello\|mqtt" || true
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hass-agent-linux
+          path: ./artifact
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: artifact/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

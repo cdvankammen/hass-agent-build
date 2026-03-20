@@ -1,0 +1,629 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:HASS.Agent.Avalonia.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
+        x:Class="HASS.Agent.Avalonia.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
+        Title="{Binding Title}"
+        MinWidth="900" MinHeight="600"
+        Width="1200" Height="800">
+
+    <Window.Styles>
+        <!-- Custom Styles -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#2E7D32"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,8"/>
+        </Style>
+        <Style Selector="Button.danger">
+            <Setter Property="Background" Value="#C62828"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,8"/>
+        </Style>
+        <Style Selector="Button.secondary">
+            <Setter Property="Background" Value="#424242"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="16,8"/>
+        </Style>
+        <Style Selector="TextBlock.header">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+        </Style>
+        <Style Selector="TextBlock.subheader">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,16,0,8"/>
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="8"/>
+            <Setter Property="BoxShadow" Value="0 2 8 #20000000"/>
+        </Style>
+    </Window.Styles>
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <Grid Background="#F0F0F0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Bar -->
+        <Border Grid.Row="0" Padding="20,12">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                    <GradientStop Color="#1B5E20" Offset="0"/>
+                    <GradientStop Color="#2E7D32" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <PathIcon Data="M12,3L2,12H5V20H19V12H22L12,3M12,8.75A2.25,2.25 0 0,1 14.25,11A2.25,2.25 0 0,1 12,13.25A2.25,2.25 0 0,1 9.75,11A2.25,2.25 0 0,1 12,8.75M12,15C13.5,15 16.5,15.75 16.5,17.25V18H7.5V17.25C7.5,15.75 10.5,15 12,15Z" 
+                             Foreground="White" Width="32" Height="32"/>
+                    <StackPanel>
+                        <TextBlock Text="HASS.Agent" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Home Assistant Companion" FontSize="12" Foreground="#B8E0B8"/>
+                    </StackPanel>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12">
+                    <Border Background="#FFFFFF20" CornerRadius="4" Padding="8,4">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse Width="10" Height="10" Fill="#4CAF50" IsVisible="{Binding IsConnected}"/>
+                            <Ellipse Width="10" Height="10" Fill="#F44336" IsVisible="{Binding !IsConnected}"/>
+                            <TextBlock Text="{Binding ConnectionStatus}" Foreground="White" FontSize="12"/>
+                        </StackPanel>
+                    </Border>
+                    <TextBox Text="{Binding HeadlessUrl}" Watermark="http://127.0.0.1:11111" MinWidth="220" 
+                             Background="White" CornerRadius="4"/>
+                    <Button Content="Connect" Command="{Binding ConnectToHeadlessCommand}" Classes="primary"/>
+                    <Button Content="⟳ Refresh" Command="{Binding RefreshDataCommand}" IsEnabled="{Binding IsConnected}" Classes="secondary"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <TabControl Grid.Row="1" Margin="8">
+            <!-- Dashboard Tab -->
+            <TabItem Header="📊 Dashboard">
+                <ScrollViewer>
+                    <Grid Margin="8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        
+                        <!-- Quick Stats -->
+                        <WrapPanel Grid.Row="0" Margin="0,0,0,16">
+                            <Border Classes="card" MinWidth="200">
+                                <StackPanel>
+                                    <TextBlock Text="Sensors" FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding SensorCount}" FontSize="32" FontWeight="Bold" Foreground="#2E7D32"/>
+                                    <TextBlock Text="Active" FontSize="12" Foreground="Gray"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Classes="card" MinWidth="200">
+                                <StackPanel>
+                                    <TextBlock Text="Commands" FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding CommandCount}" FontSize="32" FontWeight="Bold" Foreground="#1565C0"/>
+                                    <TextBlock Text="Configured" FontSize="12" Foreground="Gray"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Classes="card" MinWidth="200">
+                                <StackPanel>
+                                    <TextBlock Text="MQTT" FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding MqttStatus}" FontSize="24" FontWeight="Bold" Foreground="#FF8F00"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Classes="card" MinWidth="200">
+                                <StackPanel>
+                                    <TextBlock Text="Device" FontSize="12" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding DeviceName}" FontSize="18" FontWeight="Bold"/>
+                                    <TextBlock Text="{Binding PlatformInfo}" FontSize="12" Foreground="Gray"/>
+                                </StackPanel>
+                            </Border>
+                        </WrapPanel>
+                        
+                        <!-- Quick Actions -->
+                        <Border Grid.Row="1" Classes="card">
+                            <StackPanel>
+                                <TextBlock Text="Quick Actions" Classes="subheader"/>
+                                <WrapPanel Margin="0,8,0,0">
+                                    <Button Content="🔄 Publish Discovery" Command="{Binding PublishDiscoveryCommand}" 
+                                            IsEnabled="{Binding IsConnected}" Margin="0,0,8,8" Classes="primary"/>
+                                    <Button Content="🗑️ Clear Discovery" Command="{Binding ClearDiscoveryCommand}" 
+                                            IsEnabled="{Binding IsConnected}" Margin="0,0,8,8" Classes="danger"/>
+                                    <Button Content="🔔 Test Notification" Command="{Binding TestNotificationCommand}" 
+                                            IsEnabled="{Binding IsConnected}" Margin="0,0,8,8" Classes="secondary"/>
+                                    <Button Content="📋 Export Config" Command="{Binding ExportConfigCommand}" 
+                                            Margin="0,0,8,8" Classes="secondary"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Recent Activity -->
+                        <Border Grid.Row="2" Classes="card" Margin="8,8,8,8">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Recent Activity" Classes="subheader"/>
+                                <ListBox ItemsSource="{Binding RecentActivity}" MaxHeight="200">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="4">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding Icon}" Margin="0,0,8,0"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding Message}"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding Time}" Foreground="Gray" FontSize="11"/>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Sensors Tab -->
+            <TabItem Header="📡 Sensors">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                        <Button Content="➕ Add Sensor" Command="{Binding AddSensorCommand}" Classes="primary"/>
+                        <Button Content="🔄 Refresh" Command="{Binding RefreshSensorsCommand}" IsEnabled="{Binding IsConnected}" Classes="secondary"/>
+                        <TextBox Text="{Binding SensorFilter}" Watermark="🔍 Filter sensors..." MinWidth="200"/>
+                    </StackPanel>
+                    
+                    <Border Grid.Row="1" Background="#E3F2FD" CornerRadius="4" Padding="12" Margin="0,0,0,16">
+                        <TextBlock Text="Sensors are automatically discovered from your system. Platform-specific sensors (CPU, Memory, Disk, Network) are enabled by default." 
+                                   TextWrapping="Wrap" Foreground="#1565C0"/>
+                    </Border>
+                    
+                    <DataGrid Grid.Row="2" 
+                              ItemsSource="{Binding FilteredSensors}"
+                              AutoGenerateColumns="False"
+                              GridLinesVisibility="Horizontal"
+                              IsReadOnly="True"
+                              Background="White"
+                              CornerRadius="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="150"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="State" Binding="{Binding State}" Width="150"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding Type}" Width="100"/>
+                            <DataGridTextColumn Header="Last Updated" Binding="{Binding LastUpdated}" Width="150"/>
+                            <DataGridTemplateColumn Header="Actions" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <Button Content="📝" ToolTip.Tip="Edit" Click="EditSensor_Click" Tag="{Binding}"/>
+                                            <Button Content="🗑️" ToolTip.Tip="Delete" Click="DeleteSensor_Click" Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Commands Tab -->
+            <TabItem Header="⚡ Commands">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                        <Button Content="➕ Add Command" Command="{Binding AddCommandCommand}" Classes="primary"/>
+                        <Button Content="🔄 Refresh" Command="{Binding RefreshCommandsCommand}" IsEnabled="{Binding IsConnected}" Classes="secondary"/>
+                        <TextBox Text="{Binding CommandFilter}" Watermark="🔍 Filter commands..." MinWidth="200"/>
+                    </StackPanel>
+                    
+                    <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding FilteredCommands}"
+                              AutoGenerateColumns="False"
+                              GridLinesVisibility="Horizontal"
+                              IsReadOnly="True"
+                              Background="White"
+                              CornerRadius="8">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="150"/>
+                            <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                            <DataGridTextColumn Header="Type" Binding="{Binding EntityType}" Width="100"/>
+                            <DataGridTextColumn Header="Command" Binding="{Binding Command}" Width="250"/>
+                            <DataGridTemplateColumn Header="Actions" Width="150">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <Button Content="▶️ Run" Click="RunCommand_Click" Tag="{Binding}" Classes="primary"/>
+                                            <Button Content="📝" ToolTip.Tip="Edit" Click="EditCommand_Click" Tag="{Binding}"/>
+                                            <Button Content="🗑️" ToolTip.Tip="Delete" Click="DeleteCommand_Click" Tag="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Media Tab -->
+            <TabItem Header="🎵 Media">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Now Playing -->
+                    <Border Grid.Row="0" Classes="card" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- Album Art Placeholder -->
+                            <Border Grid.Column="0" Width="120" Height="120" Background="#E0E0E0" CornerRadius="8" Margin="0,0,16,0">
+                                <TextBlock Text="🎵" FontSize="48" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding NowPlayingTitle, FallbackValue='No media playing'}" FontSize="24" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding NowPlayingArtist}" FontSize="16" Foreground="Gray"/>
+                                <TextBlock Text="{Binding NowPlayingAlbum}" FontSize="14" Foreground="Gray"/>
+                                <TextBlock Text="{Binding NowPlayingApp}" FontSize="12" Foreground="#2E7D32" Margin="0,8,0,0"/>
+                            </StackPanel>
+                            
+                            <!-- Playback Controls -->
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+                                    <Button Content="⏮️" Command="{Binding MediaPreviousCommand}" FontSize="24" Width="50" Height="50"/>
+                                    <Button Content="{Binding PlayPauseIcon, FallbackValue='▶️'}" Command="{Binding MediaPlayPauseCommand}" FontSize="24" Width="60" Height="60" Classes="primary"/>
+                                    <Button Content="⏭️" Command="{Binding MediaNextCommand}" FontSize="24" Width="50" Height="50"/>
+                                </StackPanel>
+                                <Slider Value="{Binding Volume}" Minimum="0" Maximum="100" Width="200" Margin="0,16,0,0"/>
+                                <TextBlock Text="{Binding Volume, StringFormat='Volume: {0}%'}" HorizontalAlignment="Center" FontSize="12"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- Media Sessions -->
+                    <Border Grid.Row="1" Classes="card">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Active Media Sessions" Classes="subheader"/>
+                            <ListBox ItemsSource="{Binding MediaSessions}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F5F5F5" CornerRadius="4" Padding="12" Margin="0,4">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding Artist}" FontSize="12" Foreground="Gray"/>
+                                                    <TextBlock Text="{Binding Player}" FontSize="11" Foreground="#2E7D32"/>
+                                                </StackPanel>
+                                                <TextBlock Grid.Column="1" Text="{Binding Status}" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Bluetooth Tab -->
+            <TabItem Header="📶 Bluetooth">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                        <Button Content="🔄 Refresh Devices" Command="{Binding RefreshBluetoothCommand}" IsEnabled="{Binding IsConnected}" Classes="primary"/>
+                        <Button Content="📡 Start Scan" Command="{Binding StartBluetoothScanCommand}" IsEnabled="{Binding IsConnected}" Classes="secondary"/>
+                    </StackPanel>
+                    
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Paired Devices -->
+                        <Border Grid.Column="0" Classes="card" Margin="0,0,8,0">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Paired Devices" Classes="subheader"/>
+                                <ListBox ItemsSource="{Binding PairedBluetoothDevices}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F5F5F5" CornerRadius="4" Padding="12" Margin="0,4">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                        <TextBlock Text="{Binding MacAddress}" FontSize="11" Foreground="Gray"/>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                                        <Ellipse Width="8" Height="8" Fill="#4CAF50" IsVisible="{Binding IsConnected}"/>
+                                                        <Button Content="{Binding ConnectButtonText}" Click="ToggleBluetoothConnection_Click" Tag="{Binding}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                        
+                        <!-- Connected Devices -->
+                        <Border Grid.Column="1" Classes="card" Margin="8,0,0,0">
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Top" Text="Connected Devices" Classes="subheader"/>
+                                <ListBox ItemsSource="{Binding ConnectedBluetoothDevices}">
+                                    <ListBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#E8F5E9" CornerRadius="4" Padding="12" Margin="0,4">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="{Binding MacAddress}" FontSize="11" Foreground="Gray"/>
+                                                    <TextBlock Text="● Connected" FontSize="11" Foreground="#4CAF50"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ListBox.ItemTemplate>
+                                </ListBox>
+                            </DockPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
+            <!-- Settings Tab -->
+            <TabItem Header="⚙️ Settings">
+                <ScrollViewer>
+                    <StackPanel Margin="16" Spacing="16">
+                        <!-- MQTT Settings -->
+                        <Border Classes="card">
+                            <StackPanel>
+                                <TextBlock Text="MQTT Configuration" Classes="header"/>
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="150,*">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Broker Address:" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding MqttBroker}" Watermark="mqtt://localhost:1883" Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Username:" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding MqttUsername}" Watermark="Optional" Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Password:" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding MqttPassword}" PasswordChar="●" Watermark="Optional" Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Discovery Prefix:" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding MqttDiscoveryPrefix}" Watermark="homeassistant" Margin="0,0,0,8"/>
+                                    
+                                    <CheckBox Grid.Row="4" Grid.Column="1" Content="Enable MQTT" IsChecked="{Binding MqttEnabled}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Device Settings -->
+                        <Border Classes="card">
+                            <StackPanel>
+                                <TextBlock Text="Device Configuration" Classes="header"/>
+                                <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="150,*">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Device Name:" VerticalAlignment="Center"/>
+                                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding DeviceNameSetting}" Watermark="my-computer" Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Update Interval:" VerticalAlignment="Center"/>
+                                    <NumericUpDown Grid.Row="1" Grid.Column="1" Value="{Binding UpdateInterval}" Minimum="5" Maximum="300" Watermark="30 seconds" Margin="0,0,0,8"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="API Port:" VerticalAlignment="Center"/>
+                                    <NumericUpDown Grid.Row="2" Grid.Column="1" Value="{Binding ApiPort}" Minimum="1024" Maximum="65535" Margin="0,0,0,8"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Notifications Settings -->
+                        <Border Classes="card">
+                            <StackPanel>
+                                <TextBlock Text="Notifications" Classes="header"/>
+                                <StackPanel Spacing="8">
+                                    <CheckBox Content="Enable desktop notifications" IsChecked="{Binding NotificationsEnabled}"/>
+                                    <CheckBox Content="Show sensor updates" IsChecked="{Binding NotifySensorUpdates}"/>
+                                    <CheckBox Content="Show connection status changes" IsChecked="{Binding NotifyConnectionChanges}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Actions -->
+                        <Border Classes="card">
+                            <StackPanel>
+                                <TextBlock Text="Actions" Classes="header"/>
+                                <WrapPanel Margin="0,8,0,0">
+                                    <Button Content="💾 Save Settings" Command="{Binding SaveSettingsCommand}" Classes="primary" Margin="0,0,8,8"/>
+                                    <Button Content="🔄 Reset to Defaults" Command="{Binding ResetSettingsCommand}" Classes="secondary" Margin="0,0,8,8"/>
+                                    <Button Content="📤 Export Configuration" Command="{Binding ExportConfigCommand}" Classes="secondary" Margin="0,0,8,8"/>
+                                    <Button Content="📥 Import Configuration" Command="{Binding ImportConfigCommand}" Classes="secondary" Margin="0,0,8,8"/>
+                                </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+
+            <!-- Logs Tab -->
+            <TabItem Header="📜 Logs">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                        <ComboBox ItemsSource="{Binding LogLevels}" SelectedItem="{Binding SelectedLogLevel}" MinWidth="100"/>
+                        <TextBox Text="{Binding LogFilter}" Watermark="🔍 Filter logs..." MinWidth="200"/>
+                        <Button Content="🔄 Refresh" Command="{Binding RefreshLogsCommand}" Classes="secondary"/>
+                        <Button Content="🗑️ Clear" Command="{Binding ClearLogsCommand}" Classes="secondary"/>
+                        <Button Content="📤 Export" Command="{Binding ExportLogsCommand}" Classes="secondary"/>
+                    </StackPanel>
+                    
+                    <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="8">
+                        <ListBox ItemsSource="{Binding FilteredLogs}" Background="#1E1E1E">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" FontFamily="Consolas, Monaco, monospace" FontSize="12" 
+                                               Foreground="{Binding Converter={StaticResource LogLevelColorConverter}}"
+                                               TextWrapping="NoWrap"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+            <!-- Help Tab -->
+            <TabItem Header="📘 Help">
+                <ScrollViewer>
+                    <StackPanel Margin="32" HorizontalAlignment="Center" MaxWidth="760" Spacing="16">
+                        <PathIcon Data="M12,3L2,12H5V20H19V12H22L12,3M12,8.75A2.25,2.25 0 0,1 14.25,11A2.25,2.25 0 0,1 12,13.25A2.25,2.25 0 0,1 9.75,11A2.25,2.25 0 0,1 12,8.75M12,15C13.5,15 16.5,15.75 16.5,17.25V18H7.5V17.25C7.5,15.75 10.5,15 12,15Z" 
+                                 Foreground="#2E7D32" Width="80" Height="80" HorizontalAlignment="Center" Margin="0,0,0,24"/>
+                        
+                        <TextBlock Text="HASS.Agent" FontSize="32" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        <TextBlock Text="{Binding AppVersion}" FontSize="16" HorizontalAlignment="Center" Foreground="Gray" Margin="0,8,0,24"/>
+                        
+                        <TextBlock Text="A companion application for Home Assistant" TextWrapping="Wrap"
+                                   HorizontalAlignment="Center" TextAlignment="Center"/>
+                        <TextBlock Text="The GUI talks to the headless service through the URL in the top bar. This repository builds with dotnet, not npm."
+                                   TextWrapping="Wrap" HorizontalAlignment="Center" TextAlignment="Center"
+                                   Foreground="Gray" Margin="0,0,0,8"/>
+
+                        <Border Classes="card" HorizontalAlignment="Stretch">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Quick start" Classes="subheader"/>
+                                <TextBlock Text="1. Start the headless service on the target machine." TextWrapping="Wrap"/>
+                                <TextBlock Text="2. Set the Headless URL to the node you want to manage. The default is http://127.0.0.1:11111." TextWrapping="Wrap"/>
+                                <TextBlock Text="3. Click Connect, then use Dashboard, Sensors, Commands, Media, Bluetooth, Settings, and Logs." TextWrapping="Wrap"/>
+                                <TextBlock Text="4. Use the buttons below if you need the online docs or want to file an issue." TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" HorizontalAlignment="Stretch">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Build and run from source" Classes="subheader"/>
+                                <TextBlock Text="GUI development" FontWeight="SemiBold"/>
+                                <TextBlock Text="dotnet run --project src/HASS.Agent.Avalonia/HASS.Agent.Avalonia.csproj" FontFamily="Consolas, Monaco, monospace" TextWrapping="Wrap"/>
+                                <TextBlock Text="Release build" FontWeight="SemiBold"/>
+                                <TextBlock Text="dotnet build src/HASS.Agent.Avalonia/HASS.Agent.Avalonia.csproj -c Release" FontFamily="Consolas, Monaco, monospace" TextWrapping="Wrap"/>
+                                <TextBlock Text="Linux headless build" FontWeight="SemiBold"/>
+                                <TextBlock Text="dotnet build src/HASS.Agent.Linux.sln -c Release" FontFamily="Consolas, Monaco, monospace" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Classes="card" HorizontalAlignment="Stretch">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="What each tab does" Classes="subheader"/>
+                                <TextBlock Text="Dashboard: connection status, quick actions, and recent activity." TextWrapping="Wrap"/>
+                                <TextBlock Text="Sensors: manage available sensors and filter the current list." TextWrapping="Wrap"/>
+                                <TextBlock Text="Commands: run or edit commands exposed by the headless service." TextWrapping="Wrap"/>
+                                <TextBlock Text="Media and Bluetooth: inspect and control the active sessions and paired devices." TextWrapping="Wrap"/>
+                                <TextBlock Text="Settings and Logs: adjust configuration and review recent events." TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Border Classes="card" HorizontalAlignment="Stretch">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="System Information" Classes="subheader"/>
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="150,*">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Platform:" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding PlatformInfo}"/>
+                                    
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text=".NET Version:" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding DotNetVersion}"/>
+                                    
+                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="OS Version:" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OsVersion}"/>
+                                    
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="Config Path:" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding ConfigPath}" TextWrapping="Wrap"/>
+                                    
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="Log Path:" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding LogPath}" TextWrapping="Wrap"/>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+                        
+                        <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Center" Margin="0,24,0,0">
+                            <Button Content="🌐 GitHub" Click="OpenGitHub_Click" Classes="secondary"/>
+                            <Button Content="📖 Documentation" Click="OpenDocs_Click" Classes="secondary"/>
+                            <Button Content="🐛 Report Issue" Click="OpenIssues_Click" Classes="secondary"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="#424242" Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" Foreground="White" VerticalAlignment="Center"/>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" Margin="16,0">
+                    <TextBlock Text="Headless:" Foreground="Gray" FontSize="11"/>
+                    <Ellipse Width="8" Height="8" Fill="#4CAF50" IsVisible="{Binding IsConnected}"/>
+                    <Ellipse Width="8" Height="8" Fill="#F44336" IsVisible="{Binding !IsConnected}"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="16,0">
+                    <TextBlock Text="MQTT:" Foreground="Gray" FontSize="11"/>
+                    <Ellipse Width="8" Height="8" Fill="#4CAF50" IsVisible="{Binding MqttConnected}"/>
+                    <Ellipse Width="8" Height="8" Fill="#F44336" IsVisible="{Binding !MqttConnected}"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="3" Text="{Binding CurrentTime}" Foreground="Gray" FontSize="11"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

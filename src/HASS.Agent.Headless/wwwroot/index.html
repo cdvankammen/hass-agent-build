@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HASS.Agent Headless UI</title>
+  </head>
+  <body>
+    <h1>HASS.Agent Headless</h1>
+    <p>This is a minimal web UI to control discovery and commands.</p>
+    <h2>Settings</h2>
+    <textarea id="settingsEditor" rows="12" cols="80" aria-label="settings editor" placeholder="JSON or raw content"></textarea><br/>
+    <button id="loadSettings">Load current settings</button>
+    <button id="validateSettings">Validate settings</button>
+    <button id="saveSettings">Save settings</button>
+    <button id="applySettings">Apply settings</button>
+    <label><input type="checkbox" id="autoSave"> Auto-save on edit</label>
+    <label><input type="checkbox" id="autoApply"> Auto-apply on save</label>
+    <p id="settingsHint">Hint: this editor works with the current `appsettings.json` snapshot returned by the headless API.</p>
+    <div id="settingsStatus" aria-live="polite"></div>
+    <button id="publishBtn">Publish discovery</button>
+    <button id="clearBtn">Clear discovery</button>
+    <h3>Platform status</h3>
+    <div id="platformStatus">Loading...</div>
+    <h3>Media status</h3>
+    <div id="mediaStatus">Loading...</div>
+    <div>
+      <button id="mediaPlay">Play</button>
+      <button id="mediaPause">Pause</button>
+      <button id="mediaPrevious">Previous</button>
+      <button id="mediaNext">Next</button>
+    </div>
+    <h3>Bluetooth status</h3>
+    <div id="bluetoothStatus">Loading...</div>
+    <div>
+      <button id="bluetoothScan">Start scan</button>
+      <label for="bluetoothMac">MAC:</label>
+      <input id="bluetoothMac" type="text" placeholder="AA:BB:CC:DD:EE:FF" />
+      <button id="bluetoothConnect">Connect</button>
+      <button id="bluetoothDisconnect">Disconnect</button>
+    </div>
+    <h4>Paired devices</h4>
+    <ul id="bluetoothDevices"></ul>
+    <h4>Connected devices</h4>
+    <ul id="bluetoothConnected"></ul>
+    <h3>Network status</h3>
+    <div id="networkStatus">Loading...</div>
+    <ul id="networkInterfaces"></ul>
+    <p><a href="/settings-form.html">Open full settings form</a></p>
+    <h2>Commands</h2>
+    <button id="refreshCmds">Refresh commands</button>
+    <ul id="commandsList"></ul>
+    <h3>Run custom command</h3>
+    <div>
+      <label for="cmdName">Name:</label>
+      <input id="cmdName" />
+      <label for="cmdExec">Exec:</label>
+      <input id="cmdExec" />
+      <button id="runCustom">Run</button>
+    </div>
+    <h2>Sensors</h2>
+    <button id="refreshSensors">Refresh sensors</button>
+    <ul id="sensorsList"></ul>
+    <script src="/app.js"></script>
+  </body>
+</html>

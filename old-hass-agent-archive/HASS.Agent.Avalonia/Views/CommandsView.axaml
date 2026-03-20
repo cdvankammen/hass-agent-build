@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:HASS.Agent.Avalonia.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="HASS.Agent.Avalonia.Views.CommandsView"
+             x:DataType="vm:MainWindowViewModel">
+    
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="20,20,20,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                    <TextBlock Text="Commands" FontSize="24" FontWeight="Bold"/>
+                    <TextBlock Text="Define commands that Home Assistant can execute on this device" Opacity="0.7"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Add Command" Classes="accent"/>
+            </Grid>
+        </StackPanel>
+        
+        <!-- Command List -->
+        <ScrollViewer Grid.Row="1" Margin="20,0">
+            <ItemsControl ItemsSource="{Binding Commands}" x:CompileBindings="False">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Classes="card" Margin="0,5" Padding="15">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <!-- Icon -->
+                                <Border Grid.Column="0" Width="50" Height="50" 
+                                        Background="{DynamicResource SystemControlHighlightAccentBrush}" 
+                                        CornerRadius="8"
+                                        Margin="0,0,15,0">
+                                    <TextBlock Text="⚡" 
+                                               HorizontalAlignment="Center" 
+                                               VerticalAlignment="Center"
+                                               FontSize="20"/>
+                                </Border>
+                                
+                                <!-- Command Info -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="16"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="10">
+                                        <Border Background="{DynamicResource SystemControlBackgroundAccentBrush}" 
+                                                CornerRadius="4" Padding="6,2">
+                                            <TextBlock Text="{Binding Type}" FontSize="11" Foreground="White"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding EntityId}" Opacity="0.5" FontSize="12" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                
+                                <!-- Actions -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                    <Button Content="Test" ToolTip.Tip="Execute this command"/>
+                                    <ToggleSwitch IsChecked="{Binding IsEnabled}" ToolTip.Tip="Enable/Disable"/>
+                                    <Button Content="⋮" Padding="8,4">
+                                        <Button.Flyout>
+                                            <MenuFlyout>
+                                                <MenuItem Header="Edit"/>
+                                                <MenuItem Header="Duplicate"/>
+                                                <Separator/>
+                                                <MenuItem Header="Delete"/>
+                                            </MenuFlyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        
+        <!-- Command Type Info -->
+        <Border Grid.Row="2" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" Padding="20,15">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto">
+                <TextBlock Grid.Column="0" Text="Command Types:" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" Margin="15,0">
+                    <Border Background="#4CAF50" Width="12" Height="12" CornerRadius="6"/>
+                    <TextBlock Text="Button" Opacity="0.8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5" Margin="15,0">
+                    <Border Background="#2196F3" Width="12" Height="12" CornerRadius="6"/>
+                    <TextBlock Text="Switch" Opacity="0.8"/>
+                </StackPanel>
+                
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5" Margin="15,0">
+                    <Border Background="#FF9800" Width="12" Height="12" CornerRadius="6"/>
+                    <TextBlock Text="Custom" Opacity="0.8"/>
+                </StackPanel>
+                
+                <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="20,0,0,0" Text="0 commands active"/>
+            </Grid>
+        </Border>
+    </Grid>
+    
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

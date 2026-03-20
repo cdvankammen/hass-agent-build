@@ -1,0 +1,61 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="HASS.Agent.Avalonia.Views.SensorsView"
+             x:CompileBindings="False">
+    
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="20,20,20,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <StackPanel>
+                    <TextBlock Text="Sensors" FontSize="24" FontWeight="Bold"/>
+                    <TextBlock Text="Configure and monitor your sensors" Opacity="0.7"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="+ Add Sensor" Classes="accent"/>
+            </Grid>
+            
+            <!-- Search and Filter -->
+            <Grid ColumnDefinitions="*,Auto" Margin="0,15,0,0">
+                <TextBox Watermark="Search sensors..."/>
+                <ComboBox Grid.Column="1" Width="150" Margin="10,0,0,0">
+                    <ComboBoxItem>All Sensors</ComboBoxItem>
+                    <ComboBoxItem>System</ComboBoxItem>
+                    <ComboBoxItem>Network</ComboBoxItem>
+                    <ComboBoxItem>Battery</ComboBoxItem>
+                    <ComboBoxItem>Media</ComboBoxItem>
+                    <ComboBoxItem>Custom</ComboBoxItem>
+                </ComboBox>
+            </Grid>
+        </StackPanel>
+        
+        <!-- Sensor List Placeholder -->
+        <ScrollViewer Grid.Row="1" Margin="20,0">
+            <StackPanel>
+                <TextBlock Text="No sensors configured yet." Opacity="0.7" HorizontalAlignment="Center" Margin="0,50"/>
+                <TextBlock Text="Click 'Add Sensor' to create your first sensor." Opacity="0.5" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </ScrollViewer>
+        
+        <!-- Status Bar -->
+        <Border Grid.Row="2" Background="{DynamicResource SystemControlBackgroundChromeMediumBrush}" Padding="20,10">
+            <Grid ColumnDefinitions="*,Auto">
+                <TextBlock VerticalAlignment="Center" Text="0 of 0 sensors enabled"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                    <Button Content="Enable All"/>
+                    <Button Content="Disable All"/>
+                    <Button Content="Refresh All"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+    
+    <UserControl.Styles>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+    </UserControl.Styles>
+</UserControl>

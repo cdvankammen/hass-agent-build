@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HASS.Agent Settings Form</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 16px; }
+      .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .field { margin-bottom: 8px; }
+      label { display: inline-block; width: 220px; font-weight: 600; }
+      input[type=text] { width: 60%; }
+      .err { color: #c00; font-size: 0.9em; }
+      .help { color: #666; font-size: 0.9em; margin-left: 8px; }
+      h2 { margin-top: 18px; }
+    </style>
+  </head>
+  <body>
+    <h1>Settings Form</h1>
+    <label><input id="formAutoSave" type="checkbox"> Auto-save</label>
+    <div id="formRoot">Loading schema...</div>
+    <button id="saveForm">Save</button>
+    <button id="applyForm">Apply</button>
+    <script>
+      async function load() {
+        const schema = await (await fetch('/settings/schema')).json();
+        const current = await (await fetch('/settings')).json();
+        const root = document.getElementById('formRoot');
+        root.innerHTML = '';
+        const helpMap = {
+          DeviceName: 'Friendly device name shown in Home Assistant',
+          LocalApiPort: 'Port for the local API',
+          BindHost: 'Bind host for the local API; use 0.0.0.0 for LAN access',
+          CorsAllowedOrigins: 'Comma-separated origins allowed to call the API from a browser',
+          HassUri: 'Full URL to your Home Assistant instance (https://... )',
+          MqttAddress: 'MQTT broker address (host or URL)',
+        };
+
+        const sections = {
+          general: document.createElement('div'),
+          platform: document.createElement('div'),
+          notifications: document.createElement('div'),
+          hass: document.createElement('div'),
+          mqtt: document.createElement('div')
+        };
+        sections.general.innerHTML = '<h2>General</h2>';
+        sections.platform.innerHTML = '<h2>Platform</h2>';
+        sections.notifications.innerHTML = '<h2>Notifications</h2>';
+        sections.hass.innerHTML = '<h2>Home Assistant</h2>';
+        sections.mqtt.innerHTML = '<h2>MQTT</h2>';
+
+        function insertField(s, container) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'field';
+          const label = document.createElement('label');
+          label.textContent = s.label + ':';
+          let input;
+          if (s.type === 'boolean') {
+            input = document.createElement('input'); input.type='checkbox';
+            input.checked = !!(current && Object.prototype.hasOwnProperty.call(current, s.name) && current[s.name] === true);
+          } else {
+            input = document.createElement('input'); input.type='text';
+            const val = (current && Object.prototype.hasOwnProperty.call(current, s.name)) ? current[s.name] : '';
+            input.value = val !== null && val !== undefined ? val : '';
+          }
+          input.id = 'f_' + s.name;
+          const err = document.createElement('span'); err.className = 'err'; err.id = 'err_' + s.name;
+          const help = document.createElement('span'); help.className = 'help'; help.textContent = helpMap[s.name] || '';
+          wrapper.appendChild(label);
+          wrapper.appendChild(input);
+          wrapper.appendChild(err);
+          wrapper.appendChild(help);
+          container.appendChild(wrapper);
+        }
+
+        schema.forEach(s => {
+          if (s.name.startsWith('TrayIcon') || s.name.startsWith('Browser') || s.name.startsWith('CustomExecutor')) insertField(s, sections.platform);
+          else if (s.name.startsWith('Notifications') || s.name === 'EnableStateNotifications') insertField(s, sections.notifications);
+          else if (s.name.startsWith('Hass')) insertField(s, sections.hass);
+          else if (s.name.startsWith('Mqtt')) insertField(s, sections.mqtt);
+          else insertField(s, sections.general);
+        });
+
+        const container = document.createElement('div'); container.className = 'cols';
+        const left = document.createElement('div'); const right = document.createElement('div');
+        left.appendChild(sections.general);
+        left.appendChild(sections.platform);
+        right.appendChild(sections.notifications);
+        right.appendChild(sections.hass);
+        right.appendChild(sections.mqtt);
+        container.appendChild(left); container.appendChild(right);
+        root.appendChild(container);
+
+        document.getElementById('saveForm').addEventListener('click', async () => {
+          const obj = {};
+          schema.forEach(s => {
+            const el = document.getElementById('f_' + s.name);
+            if (!el) return;
+            if (s.type === 'boolean') obj[s.name] = el.checked;
+            else if (s.type === 'integer') obj[s.name] = parseInt(el.value) || 0;
+            else obj[s.name] = el.value;
+          });
+
+          // basic validation
+          const errors = [];
+          function setErr(name, msg) { document.getElementById('err_' + name).textContent = msg || ''; if (msg) errors.push({ name, msg }); }
+          // clear all previous
+          schema.forEach(s => setErr(s.name, ''));
+
+          if (!obj.DeviceName || obj.DeviceName.trim().length === 0) setErr('DeviceName', 'required');
+          if (obj.LocalApiPort && (obj.LocalApiPort < 1 || obj.LocalApiPort > 65535)) setErr('LocalApiPort', '1-65535');
+          try { new URL(obj.HassUri); } catch { setErr('HassUri', 'invalid URL'); }
+
+          if (errors.length) { if (errors[0]) document.getElementById('f_' + errors[0].name).focus(); return; }
+
+          // server-side validation
+          const vresp = await fetch('/settings/validate', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(obj) });
+          const verr = await vresp.json();
+          if (verr && verr.valid === false) {
+            const errors = verr.errors || {};
+            const keys = Object.keys(errors);
+            if (!keys.length) return;
+            // display inline
+            keys.forEach(k => { if (document.getElementById('err_' + k)) document.getElementById('err_' + k).textContent = errors[k]; });
+            document.getElementById('f_' + keys[0])?.focus();
+            return;
+          }
+
+          await fetch('/settings', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(obj) });
+          // show saved briefly
+          const sbtn = document.getElementById('saveForm'); const old = sbtn.textContent; sbtn.textContent = 'Saved'; setTimeout(()=> sbtn.textContent = old, 1200);
+        });
+        document.getElementById('applyForm').addEventListener('click', async () => {
+          await fetch('/settings/apply', { method: 'POST' });
+          alert('Apply requested');
+        });
+
+        // optional autosave on change
+        let formAutosaveTimer = null;
+        document.getElementById('formAutoSave').addEventListener('change', (e) => { localStorage.setItem('hass_form_autosave', e.target.checked ? '1' : '0'); });
+        const autos = localStorage.getItem('hass_form_autosave') === '1';
+        if (autos) document.getElementById('formAutoSave').checked = true;
+        root.addEventListener('input', () => {
+          if (!document.getElementById('formAutoSave').checked) return;
+          if (formAutosaveTimer) clearTimeout(formAutosaveTimer);
+          formAutosaveTimer = setTimeout(() => document.getElementById('saveForm').click(), 800);
+        });
+      }
+      load();
+    </script>
+  </body>
+</html>

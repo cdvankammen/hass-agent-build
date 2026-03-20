@@ -1,0 +1,30 @@
+[Unit]
+Description=HASS Agent headless service
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nogroup
+WorkingDirectory=/opt/hass-agent
+ExecStart=/opt/hass-agent/HASS.Agent.Headless
+Restart=on-failure
+RestartSec=5s
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
+[Unit]
+Description=HASS.Agent Headless
+After=network.target
+
+[Service]
+Type=simple
+User=youruser
+WorkingDirectory=/opt/hass-agent
+ExecStart=/opt/hass-agent/HASS.Agent
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

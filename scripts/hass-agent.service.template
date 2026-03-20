@@ -1,0 +1,16 @@
+[Unit]
+Description=HASS.Agent Headless Service
+After=network.target
+
+[Service]
+Type=simple
+User=hassagent
+Group=hassagent
+WorkingDirectory=/opt/hass-agent
+Environment=DOTNET_ENVIRONMENT=Production
+ExecStart=/usr/bin/dotnet /opt/hass-agent/HASS.Agent.Headless.dll
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

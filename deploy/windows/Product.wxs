@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  
+  <?define ProductName = "HASS Agent" ?>
+  <?define ProductVersion = "2.0.0" ?>
+  <?define ProductManufacturer = "HASS Agent Contributors" ?>
+  <?define UpgradeCode = "E4F8D8A2-6B3C-4F5D-9E7A-1C2D3E4F5A6B" ?>
+
+  <Product Id="*" 
+           Name="$(var.ProductName)" 
+           Language="1033" 
+           Version="$(var.ProductVersion)" 
+           Manufacturer="$(var.ProductManufacturer)" 
+           UpgradeCode="$(var.UpgradeCode)">
+    
+    <Package InstallerVersion="500" 
+             Compressed="yes" 
+             InstallScope="perMachine" 
+             Description="HASS Agent - Home Assistant companion for Windows"
+             Manufacturer="$(var.ProductManufacturer)" />
+
+    <!-- Upgrade handling -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." 
+                  AllowSameVersionUpgrades="yes" />
+    
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- Features -->
+    <Feature Id="MainApplication" Title="HASS Agent" Level="1" Description="Main HASS Agent application">
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentGroupRef Id="StartMenuShortcuts" />
+      <ComponentGroupRef Id="DesktopShortcuts" />
+      <ComponentRef Id="RegistryEntries" />
+    </Feature>
+
+    <Feature Id="HeadlessService" Title="Headless Service" Level="1" Description="Background service for headless operation">
+      <ComponentGroupRef Id="ServiceFiles" />
+      <ComponentRef Id="ServiceComponent" />
+    </Feature>
+
+    <!-- UI Customization -->
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_FeatureTree" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="Banner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="Dialog.bmp" />
+
+    <!-- Custom Actions -->
+    <CustomAction Id="LaunchApplication" 
+                  FileKey="HASSAgentExe" 
+                  ExeCommand="" 
+                  Return="asyncNoWait" />
+
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApplication" After="InstallFinalize">NOT Installed AND UILevel &gt; 3</Custom>
+    </InstallExecuteSequence>
+
+    <!-- Properties -->
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/your-repo/hass-agent" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/your-repo/hass-agent" />
+    
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="HASS Agent">
+          <Directory Id="ServiceFolder" Name="Service" />
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="HASS Agent" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="HASSAgentDataFolder" Name="HASS Agent">
+          <Directory Id="ConfigFolder" Name="config" />
+          <Directory Id="LogsFolder" Name="logs" />
+        </Directory>
+      </Directory>
+    </Directory>
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable" Guid="A1B2C3D4-E5F6-7890-ABCD-EF1234567890">
+        <File Id="HASSAgentExe" 
+              Source="$(var.PublishDir)\HASS.Agent.Desktop.exe" 
+              KeyPath="yes">
+          <Shortcut Id="StartMenuAppShortcut" 
+                    Name="HASS Agent" 
+                    Directory="ApplicationProgramsFolder" 
+                    WorkingDirectory="INSTALLFOLDER" 
+                    Advertise="yes" 
+                    Icon="AppIcon.ico" />
+        </File>
+      </Component>
+      <Component Id="AppConfig" Guid="B2C3D4E5-F6A7-8901-BCDE-F23456789012">
+        <File Id="AppSettings" Source="$(var.PublishDir)\appsettings.json" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="ServiceFiles" Directory="ServiceFolder">
+      <Component Id="ServiceExecutable" Guid="C3D4E5F6-A7B8-9012-CDEF-345678901234">
+        <File Id="HASSAgentServiceExe" 
+              Source="$(var.PublishDir)\Service\HASS.Agent.Headless.exe" 
+              KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="StartMenuShortcuts" Directory="ApplicationProgramsFolder">
+      <Component Id="StartMenuUninstall" Guid="D4E5F6A7-B8C9-0123-DEFA-456789012345">
+        <Shortcut Id="UninstallShortcut" 
+                  Name="Uninstall HASS Agent" 
+                  Target="[SystemFolder]msiexec.exe" 
+                  Arguments="/x [ProductCode]" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="Software\HASSAgent" Name="StartMenuInstalled" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <ComponentGroup Id="DesktopShortcuts" Directory="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="E5F6A7B8-C9D0-1234-EFab-567890123456">
+        <Shortcut Id="DesktopAppShortcut" 
+                  Name="HASS Agent" 
+                  Target="[INSTALLFOLDER]HASS.Agent.Desktop.exe" 
+                  WorkingDirectory="INSTALLFOLDER" 
+                  Icon="AppIcon.ico" />
+        <RegistryValue Root="HKCU" Key="Software\HASSAgent" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+
+    <Component Id="RegistryEntries" Directory="INSTALLFOLDER" Guid="F6A7B8C9-D0E1-2345-FAbc-678901234567">
+      <RegistryKey Root="HKLM" Key="Software\HASSAgent">
+        <RegistryValue Name="InstallPath" Type="string" Value="[INSTALLFOLDER]" />
+        <RegistryValue Name="Version" Type="string" Value="$(var.ProductVersion)" />
+      </RegistryKey>
+      <RegistryValue Root="HKCU" Key="Software\HASSAgent" Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+    </Component>
+
+    <!-- Windows Service Component -->
+    <Component Id="ServiceComponent" Directory="ServiceFolder" Guid="A7B8C9D0-E1F2-3456-AbCD-789012345678">
+      <File Id="ServiceExeForInstall" Source="$(var.PublishDir)\Service\HASS.Agent.Headless.exe" KeyPath="yes" />
+      <ServiceInstall Id="HASSAgentServiceInstall"
+                      Name="HASSAgentService"
+                      DisplayName="HASS Agent Service"
+                      Description="Home Assistant Agent background service for Windows"
+                      Start="auto"
+                      Type="ownProcess"
+                      ErrorControl="normal"
+                      Account="LocalSystem">
+        <util:ServiceConfig FirstFailureActionType="restart"
+                            SecondFailureActionType="restart"
+                            ThirdFailureActionType="none"
+                            RestartServiceDelayInSeconds="60" />
+      </ServiceInstall>
+      <ServiceControl Id="HASSAgentServiceControl"
+                      Name="HASSAgentService"
+                      Start="install"
+                      Stop="both"
+                      Remove="uninstall"
+                      Wait="yes" />
+    </Component>
+    
+    <!-- Icon -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.SourceDir)\images\icon.ico" />
+  </Fragment>
+
+</Wix>

@@ -1,0 +1,12 @@
+[
+  {
+    "Id": "1",
+    "Name": "Test",
+    "EntityType": "Switch",
+    "State": "OFF"
+  }
+]
+[
+  { "id": "1", "name": "Test command", "entityType": "Switch", "state": "OFF" },
+  { "id": "2", "name": "Say hello", "entityType": "Switch", "state": "OFF" }
+]

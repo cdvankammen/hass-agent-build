@@ -1,0 +1,19 @@
+Package: hass-agent
+Version: 2.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libnotify-bin, playerctl
+Recommends: bluez
+Maintainer: HASS.Agent Contributors <support@hassagent.io>
+Description: Home Assistant Companion Agent for Linux
+ HASS.Agent is a companion application for Home Assistant that allows
+ you to control your Linux computer and send sensor data to Home Assistant.
+ .
+ Features:
+  - Send system sensors to Home Assistant (CPU, Memory, Disk, Network)
+  - Execute commands from Home Assistant
+  - Control media playback
+  - Receive notifications from Home Assistant
+  - System tray integration
+Homepage: https://github.com/LAB02-Research/HASS.Agent

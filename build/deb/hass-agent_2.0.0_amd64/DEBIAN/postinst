@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+# Create symlinks
+ln -sf /opt/hass-agent/HASS.Agent.Headless /usr/local/bin/hass-agent
+ln -sf /opt/hass-agent/HASS.Agent.Avalonia /usr/local/bin/hass-agent-gui
+
+# Set permissions
+chmod +x /opt/hass-agent/HASS.Agent.Headless
+chmod +x /opt/hass-agent/HASS.Agent.Avalonia
+
+# Create log directory
+mkdir -p /var/log/hass-agent
+chmod 777 /var/log/hass-agent
+
+# Update desktop database
+if command -v update-desktop-database &> /dev/null; then
+    update-desktop-database -q /usr/share/applications 2>/dev/null || true
+fi
+
+# Reload systemd
+systemctl daemon-reload 2>/dev/null || true
+
+echo ""
+echo "HASS.Agent installed successfully!"
+echo ""
+echo "To start the GUI:     hass-agent-gui"
+echo "To start headless:    hass-agent"
+echo "To enable as service: sudo systemctl enable --now hass-agent@\$USER"
+echo ""
+
+exit 0

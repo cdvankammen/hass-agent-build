@@ -1,0 +1,9 @@
+Package: hass-agent
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: HASS Agent <noreply@example.com>
+Depends: libc6 (>= 2.29), dotnet-runtime-10
+Description: HASS Agent (headless) - Home Assistant agent for Linux (headless)
+ Minimal headless service and core logic for interacting with Home Assistant.

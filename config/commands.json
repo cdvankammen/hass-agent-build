@@ -1,0 +1,13 @@
+[
+  {
+    "Id": "22222222-2222-2222-2222-222222222222",
+    "Name": "LegacyCmd2",
+    "EntityType": "Switch",
+    "State": "OFF",
+    "Command": "echo hi",
+    "Args": null,
+    "KeyCode": "",
+    "Keys": [],
+    "RunAsLowIntegrity": false
+  }
+]

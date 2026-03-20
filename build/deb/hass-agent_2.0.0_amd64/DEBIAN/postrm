@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+
+# Remove symlinks
+rm -f /usr/local/bin/hass-agent
+rm -f /usr/local/bin/hass-agent-gui
+
+# Don't remove logs on upgrade
+if [ "$1" = "purge" ]; then
+    rm -rf /var/log/hass-agent
+fi
+
+exit 0

@@ -1,0 +1,13 @@
+{
+  "DeviceName": "",
+  "MqttEnabled": false,
+  "MqttAddress": "",
+  "MqttPort": 1883,
+  "MqttUsername": "",
+  "MqttPassword": "",
+  "MqttDiscoveryPrefix": "homeassistant",
+  "LocalApiEnabled": true,
+  "LocalApiPort": 11111,
+  "SensorUpdateInterval": 30,
+  "NotificationsEnabled": true
+}

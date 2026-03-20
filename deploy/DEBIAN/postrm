@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PKG_ROOT="/opt/hass-agent"
+
+# Reload systemd after removal
+if command -v systemctl >/dev/null 2>&1; then
+  systemctl daemon-reload || true
+fi
+
+# Only remove user and files on purge
+if [ "${1:-}" = "purge" ]; then
+  # Remove config directory
+  if [ -d "/etc/hass-agent" ]; then
+    rm -rf /etc/hass-agent || true
+  fi
+  
+  # Remove logs
+  if [ -d "/var/log/hass-agent" ]; then
+    rm -rf /var/log/hass-agent || true
+  fi
+  
+  # Remove hassagent user if it exists
+  if id -u hassagent >/dev/null 2>&1; then
+    userdel hassagent 2>/dev/null || true
+  fi
+fi
+
+exit 0

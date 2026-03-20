@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=HASS.Agent
+GenericName=Home Assistant Companion
+Comment=Control and monitor your system from Home Assistant
+Icon=hass-agent-icon
+Exec=/opt/hass-agent/HASS.Agent.Avalonia
+Terminal=false
+Categories=Utility;System;
+Keywords=home;assistant;smart;home;automation;mqtt;
+StartupNotify=true
+StartupWMClass=HASS.Agent.Avalonia

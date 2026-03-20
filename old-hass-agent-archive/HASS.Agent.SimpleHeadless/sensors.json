@@ -1,0 +1,8 @@
+[
+  { "Id": "cpu", "Name": "CPU", "State": "0%" },
+  { "Id": "mem", "Name": "Memory", "State": "0%" }
+]
+[
+  { "id": "cpu", "name": "CPU Usage", "state": "0%" },
+  { "id": "mem", "name": "Memory Usage", "state": "0%" }
+]

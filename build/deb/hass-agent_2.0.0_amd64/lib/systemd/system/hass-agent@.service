@@ -1,0 +1,26 @@
+[Unit]
+Description=HASS.Agent - Home Assistant Companion for %i
+Documentation=https://hassagent.readthedocs.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=%i
+ExecStart=/opt/hass-agent/HASS.Agent.Headless
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+Environment=HOME=/home/%i
+WorkingDirectory=/opt/hass-agent
+
+# Security
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ReadWritePaths=/home/%i/.config/hass-agent /var/log/hass-agent
+
+[Install]
+WantedBy=multi-user.target

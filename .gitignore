@@ -1,0 +1,41 @@
+# Ignore build outputs
+**/bin/
+**/obj/
+
+# User-specific files
+*.user
+*.suo
+*.userprefs
+
+# Visual Studio cache
+.vs/
+
+# Rider
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Python virtualenv
+venv/
+.env
+
+# Node
+node_modules/
+
+# Temporary files
+*~
+*.tmp
+.vs/
+
+HASSAgent/bin/
+
+HASSAgent/obj/
+
+src/HASS.Agent/bin
+
+src/HASS.Agent/obj
+.fake

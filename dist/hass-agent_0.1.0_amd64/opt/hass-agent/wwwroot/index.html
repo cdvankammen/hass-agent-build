@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>HASS.Agent Headless UI</title>
+  </head>
+  <body>
+    <h1>HASS.Agent Headless</h1>
+    <p>This is a minimal web UI to control discovery and commands.</p>
+    <h2>Settings</h2>
+    <p>Config files:</p>
+    <label for="settingsSelect" class="sr-only">Select configuration file</label>
+    <select id="settingsSelect" title="Select configuration file to edit"></select>
+    <p>Selected file path: <span id="settingsPath">(loading)</span></p>
+    <textarea id="settingsEditor" rows="12" cols="80" aria-label="settings editor" placeholder="JSON or raw content"></textarea><br/>
+    <button id="loadSettings">Load selected file</button>
+    <button id="saveSettings">Save selected file</button>
+    <button id="applySettings">Apply settings</button>
+    <label><input type="checkbox" id="autoSave"> Auto-save on edit</label>
+    <label><input type="checkbox" id="autoApply"> Auto-apply on save</label>
+    <p id="settingsHint">Hint: you can edit settings here; the persistent files live in the configuration folder on disk. The exact paths are shown above.</p>
+    <button id="publishBtn">Publish discovery</button>
+    <button id="clearBtn">Clear discovery</button>
+    <h3>Platform status</h3>
+    <div id="platformStatus">Loading...</div>
+    <p><a href="/settings-form.html">Open full settings form</a></p>
+    <h2>Commands</h2>
+    <button id="refreshCmds">Refresh commands</button>
+    <ul id="commandsList"></ul>
+    <h3>Run custom command</h3>
+    <div>
+      <label for="cmdName">Name:</label>
+      <input id="cmdName" />
+      <label for="cmdExec">Exec:</label>
+      <input id="cmdExec" />
+      <button id="runCustom">Run</button>
+    </div>
+    <h2>Sensors</h2>
+    <button id="refreshSensors">Refresh sensors</button>
+    <ul id="sensorsList"></ul>
+    <script src="/app.js"></script>
+  </body>
+</html>
